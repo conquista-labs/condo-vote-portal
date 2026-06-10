@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portal de Senhas – Assembleia Online</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #f5f5f3;
+        --card: #ffffff;
+        --border: rgba(0, 0, 0, 0.1);
+        --text: #1a1a18;
+        --muted: #6b6b67;
+        --hint: #9b9b96;
+        --blue: #185fa5;
+        --blue-dark: #0c447c;
+        --blue-bg: #e6f1fb;
+        --blue-text: #0c447c;
+        --green-bg: #eaf3de;
+        --green-text: #27500a;
+        --green-border: #97c459;
+        --red-bg: #fcebeb;
+        --red-text: #791f1f;
+        --red-border: #f09595;
+        --radius: 12px;
+        --radius-sm: 8px;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #1c1c1a;
+          --card: #2c2c2a;
+          --border: rgba(255, 255, 255, 0.1);
+          --text: #e8e6de;
+          --muted: #a0a09a;
+          --hint: #6b6b67;
+          --blue-bg: #0c447c;
+          --blue-text: #b5d4f4;
+          --green-bg: #27500a;
+          --green-text: #c0dd97;
+          --green-border: #3b6d11;
+          --red-bg: #501313;
+          --red-text: #f7c1c1;
+          --red-border: #a32d2d;
+        }
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+      }
+
+      .wrapper {
+        width: 100%;
+        max-width: 440px;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+      .logo {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: var(--blue-bg);
+        color: var(--blue-text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        margin: 0 auto 1rem;
+      }
+      .header h1 {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+      .header p {
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      .card {
+        background: var(--card);
+        border: 0.5px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+      }
+
+      .field {
+        margin-bottom: 1rem;
+      }
+      .field label {
+        display: block;
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      .field input {
+        width: 100%;
+        padding: 11px 14px;
+        font-size: 18px;
+        letter-spacing: 2px;
+        border: 0.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--card);
+        color: var(--text);
+        outline: none;
+        transition:
+          border-color 0.15s,
+          box-shadow 0.15s;
+      }
+      .field input:focus {
+        border-color: var(--blue);
+        box-shadow: 0 0 0 3px rgba(24, 95, 165, 0.15);
+      }
+      .field input:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .btn {
+        width: 100%;
+        padding: 12px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        border-radius: var(--radius-sm);
+        background: var(--blue);
+        color: #fff;
+        transition: background 0.15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .btn:hover:not(:disabled) {
+        background: var(--blue-dark);
+      }
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .result {
+        margin-top: 1.25rem;
+        border-radius: var(--radius-sm);
+        padding: 1.25rem;
+        text-align: center;
+        border: 0.5px solid;
+      }
+      .result.success {
+        background: var(--green-bg);
+        border-color: var(--green-border);
+      }
+      .result.error {
+        background: var(--red-bg);
+        border-color: var(--red-border);
+      }
+
+      .senha-label {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      .senha-valor {
+        font-size: 42px;
+        font-weight: 700;
+        letter-spacing: 10px;
+        color: var(--green-text);
+        margin: 4px 0;
+      }
+      .nome-text {
+        font-size: 14px;
+        color: var(--muted);
+        margin-top: 6px;
+      }
+      .error-msg {
+        font-size: 14px;
+        color: var(--red-text);
+      }
+      .tentativas {
+        font-size: 12px;
+        color: var(--hint);
+        margin-top: 8px;
+      }
+
+      .info-box {
+        background: var(--bg);
+        border-radius: var(--radius-sm);
+        padding: 12px 14px;
+        margin-top: 1rem;
+        font-size: 13px;
+        color: var(--muted);
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .info-box span {
+        line-height: 1.5;
+      }
+
+      .btn-voltar {
+        margin-top: 1rem;
+        width: 100%;
+        padding: 10px;
+        font-size: 14px;
+        cursor: pointer;
+        border-radius: var(--radius-sm);
+        border: 0.5px solid var(--border);
+        background: transparent;
+        color: var(--muted);
+        transition: background 0.15s;
+      }
+      .btn-voltar:hover {
+        background: var(--bg);
+      }
+
+      .loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        color: var(--muted);
+        font-size: 14px;
+        padding: 1rem;
+      }
+      .spinner {
+        width: 18px;
+        height: 18px;
+        border: 2px solid var(--border);
+        border-top-color: var(--blue);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .config-banner {
+        background: #fff8e6;
+        border: 0.5px solid #fac775;
+        border-radius: var(--radius-sm);
+        padding: 12px 14px;
+        font-size: 13px;
+        color: #633806;
+        margin-bottom: 1rem;
+        line-height: 1.6;
+      }
+      @media (prefers-color-scheme: dark) {
+        .config-banner {
+          background: #412402;
+          border-color: #854f0b;
+          color: #fac775;
+        }
+      }
+      .config-banner strong {
+        font-weight: 600;
+      }
+      .config-banner code {
+        background: rgba(0, 0, 0, 0.1);
+        padding: 1px 5px;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <!-- ============================================================
+       CONFIGURAÇÃO — edite apenas estas duas linhas:
+       1. SHEET_ID  → ID da sua planilha (veja instruções abaixo)
+       2. TITULO    → Nome do condomínio / evento
+       ============================================================ -->
+
+      <script>
+        const SHEET_CSV_URL =
+          "https://docs.google.com/spreadsheets/d/e/2PACX-1vQDGBReG32dsUTOkPVkeXKaAJR4idiXIocV-I7RZAML5C1rQdkW5ia8ORX642iKbA/pub?gid=827876935&single=true&output=csv"; // ← substitua pelo ID da planilha
+        const TITULO = "Assembleia Online";
+        const SUBTITULO = "Condomínio Vista Linda · 2026";
+
+        // Estrutura esperada na planilha (linha 1 = cabeçalho, ignorado):
+        // Coluna A: CPF (formato: 123.456.789-00)
+        // Coluna B: Nome completo
+        // Coluna C: Senha
+
+        const MAX_TENTATIVAS = 5;
+      </script>
+
+      <div class="header">
+        <div class="logo">🏢</div>
+        <h1 id="titulo-portal">Assembleia Online</h1>
+        <p id="subtitulo-portal">Carregando...</p>
+      </div>
+
+      <div id="config-aviso" class="config-banner" style="display: none">
+        ⚙️ <strong>Configure o portal:</strong> abra este arquivo no editor de
+        texto e substitua <code>SEU_ID_AQUI</code> pelo ID da sua planilha do
+        Google Sheets.<br />
+        O ID está na URL da planilha:
+        <code
+          >docs.google.com/spreadsheets/d/<strong>ID_AQUI</strong>/edit</code
+        >
+      </div>
+
+      <div class="card">
+        <div class="field">
+          <label for="cpf-input">CPF do condômino</label>
+          <input
+            type="text"
+            id="cpf-input"
+            placeholder="000.000.000-00"
+            maxlength="14"
+            autocomplete="off"
+            inputmode="numeric"
+            aria-label="Digite seu CPF"
+          />
+        </div>
+        <button class="btn" id="buscar-btn" onclick="buscar()">
+          🔍 Buscar minha senha
+        </button>
+
+        <div id="resultado"></div>
+
+        <div class="info-box">
+          <span>ℹ️</span>
+          <span
+            >Sua senha é pessoal e intransferível. Use-a para acessar a
+            plataforma da assembleia no horário informado.</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Aplica título e subtítulo
+      document.getElementById("titulo-portal").textContent = TITULO;
+      document.getElementById("subtitulo-portal").textContent = SUBTITULO;
+
+      // Avisa se não configurou
+      if (false) {
+        document.getElementById("config-aviso").style.display = "block";
+      }
+
+      // Estado global
+      let tentativas = 0;
+      let bloqueado = false;
+      let dados = null; // cache dos dados da planilha
+
+      // ── Formatação do CPF ─────────────────────────────────────────
+      function formatarCPF(v) {
+        v = v.replace(/\D/g, "").slice(0, 11);
+        if (v.length <= 3) return v;
+        if (v.length <= 6) return v.slice(0, 3) + "." + v.slice(3);
+        if (v.length <= 9)
+          return v.slice(0, 3) + "." + v.slice(3, 6) + "." + v.slice(6);
+        return (
+          v.slice(0, 3) +
+          "." +
+          v.slice(3, 6) +
+          "." +
+          v.slice(6, 9) +
+          "-" +
+          v.slice(9, 11)
+        );
+      }
+
+      const cpfInput = document.getElementById("cpf-input");
+
+      cpfInput.addEventListener("input", function (e) {
+        const cursor = e.target.selectionStart;
+        const prev = e.target.value.length;
+        e.target.value = formatarCPF(e.target.value);
+        const diff = e.target.value.length - prev;
+        e.target.setSelectionRange(cursor + diff, cursor + diff);
+        document.getElementById("resultado").innerHTML = "";
+      });
+
+      cpfInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") buscar();
+      });
+
+      // ── Carrega dados da planilha (com cache) ─────────────────────
+      async function carregarDados() {
+        if (dados) return dados;
+
+        // URL pública do Google Sheets exportado como CSV
+        const url = SHEET_CSV_URL;
+
+        const resp = await fetch(url);
+        if (!resp.ok)
+          throw new Error(
+            "Planilha não acessível. Verifique se ela está publicada na web.",
+          );
+
+        const csv = await resp.text();
+        const linhas = csv.trim().split("\n").slice(1); // pula cabeçalho
+
+        const mapa = {};
+        for (const linha of linhas) {
+          // Divide por vírgula, respeitando aspas
+          const cols = linha.match(/(".*?"|[^,]+)/g) || [];
+          const cpf = (cols[0] || "").replace(/"/g, "").trim();
+          const nome = (cols[1] || "").replace(/"/g, "").trim();
+          const senha = (cols[2] || "").replace(/"/g, "").trim();
+          if (cpf) mapa[cpf] = { nome, senha };
+        }
+
+        dados = mapa;
+        return dados;
+      }
+
+      // ── Busca principal ───────────────────────────────────────────
+      async function buscar() {
+        if (bloqueado) return;
+
+        const cpf = cpfInput.value.trim();
+        const div = document.getElementById("resultado");
+
+        if (cpf.length < 14) {
+          div.innerHTML =
+            '<div class="result error"><span class="error-msg">⚠️ Digite o CPF completo (com pontos e traço).</span></div>';
+          return;
+        }
+
+        // Loading
+        div.innerHTML =
+          '<div class="loading"><div class="spinner"></div> Buscando...</div>';
+        document.getElementById("buscar-btn").disabled = true;
+
+        try {
+          if (false) {
+            throw new Error(
+              "Configure o SHEET_ID no arquivo HTML antes de usar.",
+            );
+          }
+
+          const mapa = await carregarDados();
+          tentativas++;
+
+          if (mapa[cpf]) {
+            const { nome, senha } = mapa[cpf];
+            div.innerHTML = `
+          <div class="result success">
+            <p class="senha-label">Sua senha de acesso</p>
+            <p class="senha-valor">${senha}</p>
+            <p class="nome-text">${nome}</p>
+          </div>
+          <button class="btn-voltar" onclick="resetar()">← Voltar</button>
+        `;
+            cpfInput.disabled = true;
+          } else {
+            document.getElementById("buscar-btn").disabled = false;
+
+            if (tentativas >= MAX_TENTATIVAS) {
+              bloqueado = true;
+              document.getElementById("buscar-btn").disabled = true;
+              div.innerHTML =
+                '<div class="result error"><span class="error-msg">🔒 Muitas tentativas. Por favor, procure a administração.</span></div>';
+            } else {
+              div.innerHTML = `
+            <div class="result error">
+              <span class="error-msg">👤 CPF não encontrado na lista de condôminos.</span>
+            </div>
+            <p class="tentativas">Tentativa ${tentativas} de ${MAX_TENTATIVAS}</p>
+          `;
+            }
+          }
+        } catch (err) {
+          document.getElementById("buscar-btn").disabled = false;
+          div.innerHTML = `
+        <div class="result error">
+          <span class="error-msg">❌ ${err.message}</span>
+        </div>
+      `;
+        }
+      }
+
+      // ── Resetar formulário ────────────────────────────────────────
+      function resetar() {
+        cpfInput.value = "";
+        cpfInput.disabled = false;
+        document.getElementById("buscar-btn").disabled = false;
+        document.getElementById("resultado").innerHTML = "";
+        cpfInput.focus();
+      }
+    </script>
+  </body>
+</html>
