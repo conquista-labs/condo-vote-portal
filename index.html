@@ -294,6 +294,10 @@
       <script>
         const TITULO = "Assembleia Online";
         const SUBTITULO = "Condomínio Vista Linda · 2026";
+        const DATA_ASSEMBLEIA = "20/06/2026";
+
+        // ⬇️ MUDE PARA true QUANDO QUISER LIBERAR O ACESSO ÀS SENHAS
+        const LIBERADO = true;
 
         // Estrutura esperada na planilha (linha 1 = cabeçalho, ignorado):
         // Coluna A: CPF (formato: 123.456.789-00)
@@ -309,7 +313,39 @@
         <p id="subtitulo-portal">Carregando...</p>
       </div>
 
-      <div class="card">
+      <!-- Tela em breve -->
+      <div
+        class="card"
+        id="card-em-breve"
+        style="text-align: center; padding: 2rem 1.5rem"
+      >
+        <div style="font-size: 48px; margin-bottom: 1rem">🗓️</div>
+        <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 8px">
+          Acesso em breve
+        </h2>
+        <p
+          style="
+            font-size: 14px;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 1.25rem;
+          "
+        >
+          As senhas de votação serão liberadas próximo à assembleia do dia
+          <strong id="data-assembleia"></strong>.<br />
+          Fique atento ao grupo para o aviso de liberação.
+        </p>
+        <div class="info-box" style="text-align: left">
+          <span>ℹ️</span>
+          <span
+            >Quando liberado, acesse este mesmo link, digite o CPF do
+            proprietário e resgate sua senha.</span
+          >
+        </div>
+      </div>
+
+      <!-- Formulário (liberado) -->
+      <div class="card" id="card-formulario">
         <div class="field">
           <label for="cpf-input">CPF do condômino</label>
           <input
@@ -342,8 +378,15 @@
       // Aplica título e subtítulo
       document.getElementById("titulo-portal").textContent = TITULO;
       document.getElementById("subtitulo-portal").textContent = SUBTITULO;
+      document.getElementById("data-assembleia").textContent = DATA_ASSEMBLEIA;
 
-      // Avisa se não configurou
+      // Mostra tela correta conforme LIBERADO
+      document.getElementById("card-em-breve").style.display = LIBERADO
+        ? "none"
+        : "block";
+      document.getElementById("card-formulario").style.display = LIBERADO
+        ? "block"
+        : "none";
 
       // Estado global
       let tentativas = 0;
