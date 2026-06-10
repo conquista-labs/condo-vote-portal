@@ -292,8 +292,6 @@
        ============================================================ -->
 
       <script>
-        const SHEET_CSV_URL =
-          "https://docs.google.com/spreadsheets/d/e/2PACX-1vQDGBReG32dsUTOkPVkeXKaAJR4idiXIocV-I7RZAML5C1rQdkW5ia8ORX642iKbA/pub?gid=827876935&single=true&output=csv"; // ← substitua pelo ID da planilha
         const TITULO = "Assembleia Online";
         const SUBTITULO = "Condomínio Vista Linda · 2025";
 
@@ -309,16 +307,6 @@
         <div class="logo">🏢</div>
         <h1 id="titulo-portal">Assembleia Online</h1>
         <p id="subtitulo-portal">Carregando...</p>
-      </div>
-
-      <div id="config-aviso" class="config-banner" style="display: none">
-        ⚙️ <strong>Configure o portal:</strong> abra este arquivo no editor de
-        texto e substitua <code>SEU_ID_AQUI</code> pelo ID da sua planilha do
-        Google Sheets.<br />
-        O ID está na URL da planilha:
-        <code
-          >docs.google.com/spreadsheets/d/<strong>ID_AQUI</strong>/edit</code
-        >
       </div>
 
       <div class="card">
@@ -356,14 +344,10 @@
       document.getElementById("subtitulo-portal").textContent = SUBTITULO;
 
       // Avisa se não configurou
-      if (false) {
-        document.getElementById("config-aviso").style.display = "block";
-      }
 
       // Estado global
       let tentativas = 0;
       let bloqueado = false;
-      let dados = null; // cache dos dados da planilha
 
       // ── Formatação do CPF ─────────────────────────────────────────
       function formatarCPF(v) {
@@ -398,37 +382,7 @@
         if (e.key === "Enter") buscar();
       });
 
-      // ── Carrega dados da planilha (com cache) ─────────────────────
-      async function carregarDados() {
-        if (dados) return dados;
-
-        // URL pública do Google Sheets exportado como CSV
-        const url = SHEET_CSV_URL;
-
-        const resp = await fetch(url);
-        if (!resp.ok)
-          throw new Error(
-            "Planilha não acessível. Verifique se ela está publicada na web.",
-          );
-
-        const csv = await resp.text();
-        const linhas = csv.trim().split("\n").slice(1); // pula cabeçalho
-
-        const mapa = {};
-        for (const linha of linhas) {
-          // Divide por vírgula, respeitando aspas
-          const cols = linha.match(/(".*?"|[^,]+)/g) || [];
-          const cpf = (cols[3] || "").replace(/"/g, "").trim();
-          const nome = (cols[4] || "").replace(/"/g, "").trim();
-          const senha = (cols[5] || "").replace(/"/g, "").trim();
-          if (cpf) mapa[cpf] = { nome, senha };
-        }
-
-        dados = mapa;
-        return dados;
-      }
-
-      // ── Busca principal ───────────────────────────────────────────
+      // ── Busca principal — chama a Netlify Function ────────────────
       async function buscar() {
         if (bloqueado) return;
 
@@ -441,28 +395,27 @@
           return;
         }
 
-        // Loading
         div.innerHTML =
           '<div class="loading"><div class="spinner"></div> Buscando...</div>';
         document.getElementById("buscar-btn").disabled = true;
 
         try {
-          if (false) {
-            throw new Error(
-              "Configure o SHEET_ID no arquivo HTML antes de usar.",
-            );
-          }
-
-          const mapa = await carregarDados();
           tentativas++;
 
-          if (mapa[cpf]) {
-            const { nome, senha } = mapa[cpf];
+          const resp = await fetch("/api/buscar-senha", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ cpf }),
+          });
+
+          const data = await resp.json();
+
+          if (resp.ok && data.senha) {
             div.innerHTML = `
           <div class="result success">
             <p class="senha-label">Sua senha de acesso</p>
-            <p class="senha-valor">${senha}</p>
-            <p class="nome-text">${nome}</p>
+            <p class="senha-valor">${data.senha}</p>
+            <p class="nome-text">${data.nome}</p>
           </div>
           <button class="btn-voltar" onclick="resetar()">← Voltar</button>
         `;
@@ -488,7 +441,7 @@
           document.getElementById("buscar-btn").disabled = false;
           div.innerHTML = `
         <div class="result error">
-          <span class="error-msg">❌ ${err.message}</span>
+          <span class="error-msg">❌ Erro ao conectar. Tente novamente.</span>
         </div>
       `;
         }
