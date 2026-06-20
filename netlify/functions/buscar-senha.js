@@ -50,7 +50,7 @@ export default async (req) => {
     const cols = linha.match(/(".*?"|[^,]+)/g) || [];
     const cpf = (cols[3] || "").replace(/"/g, "").trim();
     const nome = (cols[4] || "").replace(/"/g, "").trim();
-    const senha = (cols[5] || "").replace(/"/g, "").trim();
+    const senha = (cols[6] || "").replace(/"/g, "").trim();
 
     if (cpf === cpfBuscado) {
       return new Response(JSON.stringify({ nome, senha }), {
