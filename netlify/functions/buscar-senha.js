@@ -1,5 +1,5 @@
 const SHEET_CSV_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQDGBReG32dsUTOkPVkeXKaAJR4idiXIocV-I7RZAML5C1rQdkW5ia8ORX642iKbA/pub?gid=827876935&single=true&output=csv";
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vR17VfWBFE-DN9LUmlgmjuDPWVnanH53RDBon5iBIUQWlMq4Ksz-se3IDph2My5XQ/pub?gid=1654652293&single=true&output=csv";
 
 export default async (req) => {
   // Só aceita POST
