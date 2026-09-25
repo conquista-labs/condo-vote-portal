@@ -1,0 +1,6 @@
+# Planilhas com dados dos condôminos (CPF, contato, senhas) — nunca versionar
+*.xlsx
+*.xls
+*.csv
+
+.DS_Store
